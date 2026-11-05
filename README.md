@@ -2,18 +2,25 @@
 
 [![Gameplay checks](https://github.com/BrightZ/Stancefolio_Sample/actions/workflows/gameplay-checks.yml/badge.svg?branch=main)](https://github.com/BrightZ/Stancefolio_Sample/actions/workflows/gameplay-checks.yml)
 
-Stancefolio is a martial arts deckbuilder made with Godot. These two GDScript samples show how a player-facing rule becomes a piece of code, and how to tell when a change has broken it.
+Stancefolio is a martial arts deckbuilder made with Godot. These GDScript samples show how I tested two design decisions about combat and card rewards.
 
-| Sample | Design question | Implementation |
+| Sample | What it does | Where to start |
 | --- | --- | --- |
-| [Tempered Edge: banking Qi](docs/tempered-edge.md) | What makes ending a turn with energy left over a useful choice? | [Greatsword trait](rules/tempered_edge.gd) |
-| [Card rewards: weighting a combat style](docs/card-rewards.md) | How can rewards favor a character's style while leaving room for other builds? | [Weighted picker and offer](rules/card_rewards.gd) |
+| [Tempered Edge](docs/tempered-edge.md) | The greatsword banks unspent Qi (the energy used to play cards). Every target hit by the next qualifying strike gets the damage bonus. | Read the [two-turn playtest in `tests/run.gd`](tests/run.gd#L51), then follow the [greatsword rule](rules/tempered_edge.gd). |
+| [Card rewards](docs/card-rewards.md) | Within a rarity tier, cards that match the character's preferred style get double weight. A three-card offer can still include other styles. | Start with the [weighted draw in `card_rewards.gd`](rules/card_rewards.gd#L43), then open the [odds experiment](examples/reward_odds.gd). |
 
-The first sample includes a regression from playtesting. The second includes a fixed-seed experiment that compares the intended reward odds with 10,000 draws per setting. The sample runs without the game, its assets, Steam, or any plugins.
+## My role
+
+I used AI to help write the GDScript and automated tests. I made the gameplay decisions, reproduced problems during playtesting, and checked the fixes against the behavior I expected.
+
+- For the **greatsword**, I changed the free stack from a one-time bonus at the start of combat to one gained every player turn. My check was to spend the opening stack and end the turn with two Qi. The two banked stacks should survive the enemy turn and become three when the player acts again.
+- For **card rewards**, I chose to favor the character's style while keeping mixed builds viable. In a pool with one matching card and three others, doubling its weight should raise its chance on the first draw from 25% to 40%. The experiment checks that prediction over 10,000 draws per setting using a fixed seed.
 
 ## Run the checks
 
-Use the standard edition of [Godot 4.6.3](https://github.com/godotengine/godot-builds/releases/tag/4.6.3-stable). From the directory containing `project.godot`, run:
+Both samples run independently of the full game. The only prerequisite is the [standard edition of Godot 4.6.3](https://github.com/godotengine/godot-builds/releases/tag/4.6.3-stable). The combat tests supply the turns and hits, and the reward experiment supplies its own four-card pool.
+
+Run these commands from the directory containing `project.godot`.
 
 ```sh
 godot --headless --path . --script res://tests/run.gd
