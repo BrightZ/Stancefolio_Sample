@@ -1,0 +1,25 @@
+name: Gameplay checks
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Get the official Godot 4.6.3 binary
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --location --silent --show-error --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          echo 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3  godot.zip' | sha256sum --check -
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+      - name: Run gameplay tests
+        run: '"$RUNNER_TEMP/Godot_v4.6.3-stable_linux.x86_64" --headless --path . --script res://tests/run.gd'
+      - name: Print the reward experiment
+        run: '"$RUNNER_TEMP/Godot_v4.6.3-stable_linux.x86_64" --headless --path . --script res://examples/reward_odds.gd'

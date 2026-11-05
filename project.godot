@@ -1,0 +1,13 @@
+; A headless code sample, with no project imports or autoloads.
+config_version=5
+
+[application]
+config/name="Stancefolio Gameplay Sample"
+config/features=PackedStringArray("4.6")
+
+[debug]
+file_logging/enable_file_logging=false
+file_logging/enable_file_logging.pc=false
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
